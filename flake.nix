@@ -53,9 +53,6 @@
           ];
 
           shellHook = ''
-            # use strict mode
-            set -euo pipefail
-
             # determine the project root and qforte source directory
             project_root="$(git rev-parse --show-toplevel)"
             qforte_dir="$project_root/.qforte"
@@ -64,24 +61,29 @@
             # set the micromamba root prefix to a hidden directory in the project root
             export MAMBA_ROOT_PREFIX="$project_root/.mamba"
 
-            # copy the qforte source from the nix store to the project root
-            if [[ ! -d "$qforte_dir" ]]; then
-              cp -R "$qforte_nix_source" "$qforte_dir"
-              chmod -R u+w "$qforte_dir"
-            fi
+            # confine strict mode to setup so it does not affect the interactive shell
+            (
+              set -euo pipefail
 
-            # create the micromamba environment if it doesn't exist
-            if ! micromamba run --name suqk true >/dev/null 2>&1; then
+              # copy the qforte source from the nix store to the project root
+              if [[ ! -d "$qforte_dir" ]]; then
+                cp -R "$qforte_nix_source" "$qforte_dir"
+                chmod -R u+w "$qforte_dir"
+              fi
+
+              # create the micromamba environment if it doesn't exist
+              if ! micromamba run --name suqk true >/dev/null 2>&1; then
                 micromamba create --yes --file "$project_root/environment.yml"
-            fi
+              fi
 
-            # build and install qforte in the micromamba environment if it isn't already installed
-            if ! micromamba run --name suqk python -c "import qforte" >/dev/null 2>&1; then
+              # build and install qforte in the micromamba environment if it isn't already installed
+              if ! micromamba run --name suqk python -c "import qforte" >/dev/null 2>&1; then
                 (
-                    cd "$qforte_dir"
-                    micromamba run --name suqk python setup.py develop
+                  cd "$qforte_dir"
+                  micromamba run --name suqk python setup.py develop
                 )
-            fi
+              fi
+            )
 
             # activate the micromamba environment
             eval "$(micromamba shell hook --shell bash)"
