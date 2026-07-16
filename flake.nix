@@ -86,6 +86,7 @@
             )
 
             # activate the micromamba environment
+            export MAMBA_CHANGEPS1=false
             eval "$(micromamba shell hook --shell bash)"
             micromamba activate suqk
 
