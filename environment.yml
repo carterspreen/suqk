@@ -5,4 +5,14 @@ channels:
 
 dependencies:
   - python=3.12
-  - 
+  # needed for qforte
+  - openblas
+  - psi4
+  - cmake
+  - pytest
+  # needed for qiskit
+  - qiskit
+  - qiskit-aer
+  - qiskit-ibm-runtime
+  - qiskit-qasm3-import
+  - openfermion
