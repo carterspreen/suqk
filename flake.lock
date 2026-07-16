@@ -1,0 +1,44 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1784011430,
+        "narHash": "sha256-lDebytrYdd47IBLwvNOD+6AGeoqZ78CIKlp70hzW280=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "8eeec934ae0dbeca3d7868c059568a65c08b2fc3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-26.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "qforte": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782845310,
+        "narHash": "sha256-TeIf1IteQmP48NR74m4b54hA/13bkufZ1F2aHKcr+ZI=",
+        "owner": "nstair",
+        "repo": "qforte",
+        "rev": "5b28c78426994edbc11e969557c21063dec0ffcf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nstair",
+        "repo": "qforte",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "qforte": "qforte"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
