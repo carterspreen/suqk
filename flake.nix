@@ -23,68 +23,48 @@
       pkgs = import nixpkgs { inherit system; };
 
       # this is super important. the nixpkgs version of micromamba is broken.
+      # TODO: submit a PR to nixpkgs to fix this, then remove this override.
       micromambaFixed = pkgs.micromamba.overrideAttrs (_previous: {
-          installPhase = ''
-            mkdir -p "$out/bin"
+        installPhase = ''
+          mkdir -p "$out/bin"
 
-            cp \
-              ${pkgs.mamba-cpp}/bin/.mamba-wrapped \
-              "$out/bin/micromamba"
-          '';
-        });
-
-      # FHS wrapper needed for conda
-      fhs = pkgs.buildFHSEnv {
-        # wrapper filename
-        name = "suqk-fhs-wrapper";
-        # wrapper packagelist
-        targetPkgs =
-          pkgs: with pkgs; [
-            git
-            neovim
-            micromamba
-          ];
-        # setup conda and install qforte
-        runScript = "${./scripts/setup.sh}";
-      };
+          cp \
+            ${pkgs.mamba-cpp}/bin/.mamba-wrapped \
+            "$out/bin/micromamba"
+        '';
+      });
     in
     {
       # formatter for Nix files
       formatter.${system} = pkgs.nixfmt;
       #formatter.${system} = pkgs.alejandra;
 
-      # main development shell for SUQK
-      devShells.${system} =
-      {
-
-        # original fhs shell
-        fhs = pkgs.mkShell {
-          shellHook = ''
-            exec ${fhs.out}/bin/suqk-fhs-wrapper
-          '';
-        };
-
-        # new shell with fixed micromamba
+      # development shells for SUQK
+      devShells.${system} = {
+        # main development shell for SUQK, with micromamba and qforte
         default = pkgs.mkShell {
           name = "suqk-dev-shell";
 
           packages = with pkgs; [
             git
             neovim
-            micromambaFixed
             bashInteractive
+            micromambaFixed
           ];
 
           shellHook = ''
+            # use strict mode
             set -euo pipefail
 
+            # determine the project root and qforte source directory
             project_root="$(git rev-parse --show-toplevel)"
             qforte_dir="$project_root/.qforte"
             qforte_nix_source=${qforte}
 
+            # set the micromamba root prefix to a hidden directory in the project root
             export MAMBA_ROOT_PREFIX="$project_root/.mamba"
 
-            # copy the qforte source to the project root
+            # copy the qforte source from the nix store to the project root
             if [[ ! -d "$qforte_dir" ]]; then
               cp -R "$qforte_nix_source" "$qforte_dir"
               chmod -R u+w "$qforte_dir"
@@ -95,6 +75,7 @@
                 micromamba create --yes --file "$project_root/environment.yml"
             fi
 
+            # build and install qforte in the micromamba environment if it isn't already installed
             if ! micromamba run --name suqk python -c "import qforte" >/dev/null 2>&1; then
                 (
                     cd "$qforte_dir"
@@ -106,9 +87,9 @@
             eval "$(micromamba shell hook --shell bash)"
             micromamba activate suqk
 
+            # unset local variables before dropping into the development shell
             unset project_root qforte_dir qforte_nix_source
           '';
-
         };
       };
     };
