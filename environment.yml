@@ -4,7 +4,7 @@ channels:
   - conda-forge
 
 dependencies:
-  - python=3.12
+  - python=3.14
   # needed for qforte
   - openblas
   - psi4
@@ -16,3 +16,5 @@ dependencies:
   - qiskit-ibm-runtime
   - qiskit-qasm3-import
   - openfermion
+  # needed for jupyter notebooks
+  - jupyterlab
