@@ -11,3 +11,5 @@ result-*
 # Ignore generated state from nix develop
 .mamba
 .qforte
+__pycache__/
+*.py[cod]
