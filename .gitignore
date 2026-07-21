@@ -13,3 +13,7 @@ result-*
 .qforte
 __pycache__/
 *.py[cod]
+
+# ignore stuff from qforte
+timer.dat
+output.out
